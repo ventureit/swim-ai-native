@@ -1,12 +1,14 @@
 import React from 'react';
-import { StatusBar } from 'react-native';
-import CameraScreen from './src/screens/CameraScreen';
+import { View, Text } from 'react-native';
+import CameraScreen from './src/screens/CameraScreen'; // keep your path
 
 export default function App() {
+  console.log('CameraScreen:', CameraScreen);
+
   return (
-    <>
-      <StatusBar barStyle="light-content" />
+    <View style={{ flex: 1 }}>
+      <Text style={{ marginTop: 100 }}>APP ROOT</Text>
       <CameraScreen />
-    </>
+    </View>
   );
 }

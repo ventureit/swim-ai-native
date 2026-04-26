@@ -22,7 +22,7 @@ const DESIGN_W = 390;
 const DESIGN_H = 844;
 
 const ASSETS = {
-  union: 'https://www.figma.com/api/mcp/asset/ed84a5ba-4548-4127-9e74-61424f5769a5',
+  union: 'https://picsum.photos/400/300',//'https://www.figma.com/api/mcp/asset/ed84a5ba-4548-4127-9e74-61424f5769a5',
   union1: 'https://www.figma.com/api/mcp/asset/ab10f603-2211-4e16-8dc4-cde42d9e844e',
   intersect: 'https://www.figma.com/api/mcp/asset/5d2596d9-ed39-4809-a329-8ed9cd7fe5ca',
   images: 'https://www.figma.com/api/mcp/asset/1a8065c7-609f-4cfb-a5e6-96fead8d5211',
@@ -63,6 +63,9 @@ export default function CameraScreen() {
 
   return (
     <View style={styles.root}>
+      <Text style={{ color: 'red', fontSize: 24, position: 'absolute', top: 100, left: 20 }}>
+        TEST
+      </Text>
       <View style={[styles.headerRow, { paddingTop: 30 * sy, paddingHorizontal: 14 * sx }]}>
         <View style={[styles.headerIconSlot, { width: 55 * sx, height: 55 * sy }]}>
           <Image source={{ uri: ASSETS.vectorBack }} style={styles.headerIconFill} resizeMode="contain" />
