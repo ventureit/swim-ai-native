@@ -7,7 +7,6 @@ export default function App() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Text style={{ marginTop: 100 }}>APP ROOT</Text>
       <CameraScreen />
     </View>
   );

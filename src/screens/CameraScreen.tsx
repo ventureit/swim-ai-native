@@ -1,5 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import BackIcon from '../../assets/icons/BackIcon.svg';
+import CameraRectangleIcon from '../../assets/icons/CameraRectangleIcon.svg';
+import ImagesIcon from '../../assets/icons/ImagesIcon.svg';
+import MenuIcon from '../../assets/icons/MenuIcon.svg';
+import SwimIcon from '../../assets/icons/SwimIcon.svg';
+import WaveGroupIcon from '../components/WaveGroupIcon';
 
 type FeedbackPhaseState = {
   feedback: string | null;
@@ -17,26 +23,7 @@ function isJestRuntime(): boolean {
   return proc?.env?.NODE_ENV === 'test';
 }
 
-/** Figma: iPhone 13 & 14 - 1 (`1:2`), design size 390×844 */
-const DESIGN_W = 390;
-const DESIGN_H = 844;
-
-const ASSETS = {
-  union: 'https://picsum.photos/400/300',//'https://www.figma.com/api/mcp/asset/ed84a5ba-4548-4127-9e74-61424f5769a5',
-  union1: 'https://www.figma.com/api/mcp/asset/ab10f603-2211-4e16-8dc4-cde42d9e844e',
-  intersect: 'https://www.figma.com/api/mcp/asset/5d2596d9-ed39-4809-a329-8ed9cd7fe5ca',
-  images: 'https://www.figma.com/api/mcp/asset/1a8065c7-609f-4cfb-a5e6-96fead8d5211',
-  vectorSwim: 'https://www.figma.com/api/mcp/asset/8012f6a4-3bbe-4d42-abdf-322d97511dae',
-  dotsThreeCircle: 'https://www.figma.com/api/mcp/asset/223d0e1b-a7be-41f2-b53d-f4c10be01738',
-  vectorBack: 'https://www.figma.com/api/mcp/asset/a24adbd8-363a-4a54-8bba-0ab84d14096c',
-  subtract: 'https://www.figma.com/api/mcp/asset/76c636a6-c1c0-4910-ba98-e52fa79f4594',
-} as const;
-
 export default function CameraScreen() {
-  const { width: screenW, height: screenH } = useMemo(() => Dimensions.get('window'), []);
-  const sx = screenW / DESIGN_W;
-  const sy = screenH / DESIGN_H;
-
   const [stateIndex, setStateIndex] = useState(0);
 
   useEffect(() => {
@@ -54,68 +41,50 @@ export default function CameraScreen() {
   }, []);
 
   const activeState = DEMO_STATES[stateIndex];
-
-  const bracketW = 300 * sx;
-  const bracketH = 420 * sx;
-
-  const bottomSectionH = (DESIGN_H - 542) * sy;
-  const tilesBottomInset = (DESIGN_H - 717 - 85) * sy;
+  const hasFeedback = Boolean(activeState.feedback);
 
   return (
     <View style={styles.root}>
-      <Text style={{ color: 'red', fontSize: 24, position: 'absolute', top: 100, left: 20 }}>
-        TEST
-      </Text>
-      <View style={[styles.headerRow, { paddingTop: 30 * sy, paddingHorizontal: 14 * sx }]}>
-        <View style={[styles.headerIconSlot, { width: 55 * sx, height: 55 * sy }]}>
-          <Image source={{ uri: ASSETS.vectorBack }} style={styles.headerIconFill} resizeMode="contain" />
+      <View style={styles.headerRow}>
+        <View style={styles.headerIconSlot}>
+          <View style={styles.iconButton}>
+            <BackIcon width={45} height={45} />
+          </View>
         </View>
-        <View style={[styles.headerIconSlot, { width: 55 * sx, height: 55 * sy }]}>
-          <Image source={{ uri: ASSETS.dotsThreeCircle }} style={styles.headerIconFill} resizeMode="contain" />
-        </View>
-      </View>
-
-      <View style={[styles.cameraBlock, { paddingTop: Math.max(0, (104 - 30 - 55) * sy) }]}>
-        <View style={[styles.bracketWrap, { width: bracketW, height: bracketH }]}>
-          <Image source={{ uri: ASSETS.subtract }} style={styles.bracketImage} resizeMode="contain" />
-          <View style={styles.feedbackOverlay} pointerEvents="none">
-            {activeState.feedback ? <Text style={styles.feedbackText}>{activeState.feedback}</Text> : null}
-            <Text style={[styles.phaseText, !activeState.feedback && styles.phaseTextOnly]}>{activeState.phase}</Text>
+        <View style={styles.headerIconSlot}>
+          <View style={styles.iconButton}>
+            <MenuIcon width={55} height={55} />
           </View>
         </View>
       </View>
 
-      <View style={[styles.bottomStack, { height: bottomSectionH, flexShrink: 0 }]}>
-        <View style={styles.wavesLayer}>
-          <Image
-            source={{ uri: ASSETS.union1 }}
-            style={[styles.waveImg, { top: 0, left: -38 * sx, width: 439.255 * sx, height: 116.638 * sy }]}
-            resizeMode="stretch"
-          />
-          <Image
-            source={{ uri: ASSETS.intersect }}
-            style={[styles.waveImg, { top: (548 - 542) * sy, left: -43 * sx, width: 439.255 * sx, height: 111.089 * sy }]}
-            resizeMode="stretch"
-          />
-          <Image
-            source={{ uri: ASSETS.union }}
-            style={[styles.waveImg, { top: (627 - 542) * sy, left: 0, width: DESIGN_W * sx, height: 342 * sy }]}
-            resizeMode="stretch"
-          />
-          <Image
-            source={{ uri: ASSETS.union }}
-            style={[styles.waveImg, { top: (695 - 542) * sy, left: 0, width: DESIGN_W * sx, height: 342 * sy }]}
-            resizeMode="stretch"
-          />
+      <View style={styles.cameraArea}>
+        {/* <View style={styles.cameraFramePlaceholder}> */}
+        <View style={styles.cameraBracketWrap} pointerEvents="none">
+          <CameraRectangleIcon width="100%" height="100%" />
         </View>
+        <View style={[styles.feedbackOverlay, !hasFeedback && styles.feedbackOverlayPhaseOnly]} pointerEvents="none">
+          {hasFeedback ? <Text style={styles.feedbackText}>{activeState.feedback}</Text> : null}
+          <Text style={[styles.phaseText, !hasFeedback && styles.phaseTextOnly]}>{activeState.phase}</Text>
+        </View>
+        {/* </View> */}
+      </View>
 
-        <View style={[styles.tilesRow, { paddingHorizontal: 30 * sx, bottom: tilesBottomInset }]}>
-          <View style={[styles.tile, { width: 113 * sx, height: 85 * sy, borderRadius: 16 * sx }]}>
-            <Image source={{ uri: ASSETS.vectorSwim }} style={[styles.tileIcon, { width: 40 * sx, height: 37 * sy }]} resizeMode="contain" />
+      <View style={styles.bottomSection}>
+        <View style={styles.bottomWaveLayer} pointerEvents="none">
+          <WaveGroupIcon width="100%" height="100%" />
+        </View>
+        <View style={styles.tilesRow}>
+          <View style={styles.tile}>
+            <View style={styles.tileIconWrap}>
+              <SwimIcon width={40} height={37} />
+            </View>
             <Text style={[styles.tileLabel, styles.tileLabelSwims]}>Swims</Text>
           </View>
-          <View style={[styles.tile, { width: 113 * sx, height: 85 * sy, borderRadius: 16 * sx }]}>
-            <Image source={{ uri: ASSETS.images }} style={[styles.tileIcon, { width: 40 * sx, height: 40 * sy }]} resizeMode="contain" />
+          <View style={styles.tile}>
+            <View style={styles.tileIconWrap}>
+              <ImagesIcon width={40} height={40} />
+            </View>
             <Text style={styles.tileLabel}>Videos</Text>
           </View>
         </View>
@@ -127,93 +96,135 @@ export default function CameraScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    width: '100%',
+    flexDirection: 'column',
     backgroundColor: '#ffffff',
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    paddingBottom: 12,
   },
   headerIconSlot: {
     alignItems: 'center',
     justifyContent: 'center',
+    width: 40,
+    height: 40,
   },
-  headerIconFill: {
+  iconButton: {
     width: '100%',
     height: '100%',
-  },
-  cameraBlock: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  bracketWrap: {
+    borderRadius: 12,
+    backgroundColor: '#e5e7eb',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bracketImage: {
+  cameraArea: {
+    flex: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 24,
+  },
+  cameraFramePlaceholder: {
     width: '100%',
-    height: '100%',
+    maxWidth: 296,
+    aspectRatio: 5 / 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#cbd5e1',
+    backgroundColor: '#f8fafc',
+  },
+  cameraBracketWrap: {
+    ...StyleSheet.absoluteFill,
+    top: 16,
+    left: 16,
+    right: 16,
+    bottom: 16,
   },
   feedbackOverlay: {
     ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-    gap: 8,
+    gap: 16,
+  },
+  feedbackOverlayPhaseOnly: {
+    gap: 0,
+    paddingTop: 8,
   },
   feedbackText: {
-    color: '#0f172a',
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: '700',
+    color: '#0b1220',
+    fontSize: 32,
+    lineHeight: 40,
+    fontWeight: '900',
+    letterSpacing: -0.2,
     textAlign: 'center',
   },
   phaseText: {
-    color: 'rgba(15, 23, 42, 0.45)',
-    fontSize: 14,
-    lineHeight: 18,
-    fontWeight: '400',
+    color: 'rgba(15, 23, 42, 0.4)',
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '300',
+    letterSpacing: 0.2,
     textAlign: 'center',
   },
   phaseTextOnly: {
-    fontSize: 16,
-    lineHeight: 20,
-    color: 'rgba(15, 23, 42, 0.55)',
+    fontSize: 18,
+    lineHeight: 24,
+    color: 'rgba(15, 23, 42, 0.5)',
+    fontWeight: '400',
   },
-  bottomStack: {
+  bottomSection: {
+    flex: 1,
     width: '100%',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 24,
+    justifyContent: 'flex-end',
     position: 'relative',
-    overflow: 'hidden',
   },
-  wavesLayer: {
-    ...StyleSheet.absoluteFill,
-  },
-  waveImg: {
+  bottomWaveLayer: {
     position: 'absolute',
-  },
-  tilesRow: {
-    position: 'absolute',
+    top: 16,
     left: 0,
     right: 0,
+    bottom: 0,
+  },
+  tilesRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    gap: 16,
+    paddingHorizontal: 16,
+    zIndex: 1,
   },
   tile: {
+    width: 120,
+    height: 80,
+    borderRadius: 18,
     backgroundColor: '#f8fafc',
-    opacity: 0.7,
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingTop: 9,
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
   },
-  tileIcon: {
-    marginBottom: 4,
+  tileIconWrap: {
+    marginBottom: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tileLabel: {
     fontSize: 12,
-    color: '#000000',
-    fontWeight: '400',
+    lineHeight: 16,
+    color: '#0f172a',
+    fontWeight: '500',
+    textAlign: 'center',
   },
   tileLabelSwims: {
     color: '#0f172a',
