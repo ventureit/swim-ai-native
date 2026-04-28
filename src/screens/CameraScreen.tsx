@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import BackIcon from '../../assets/icons/BackIcon.svg';
+import TransparentBack from '../../assets/icons/TransparentBack.svg';
 import CameraRectangleIcon from '../../assets/icons/CameraRectangleIcon.svg';
 import ImagesIcon from '../../assets/icons/ImagesIcon.svg';
-import MenuIcon from '../../assets/icons/MenuIcon.svg';
+import TransparentMenu from '../../assets/icons/TransparentMenu.svg';
 import SwimIcon from '../../assets/icons/SwimIcon.svg';
 import WaveGroupIcon from '../components/WaveGroupIcon';
 
@@ -48,12 +48,12 @@ export default function CameraScreen() {
       <View style={styles.headerRow}>
         <View style={styles.headerIconSlot}>
           <View style={styles.iconButton}>
-            <BackIcon width={45} height={45} />
+            <TransparentBack width={45} height={45} />
           </View>
         </View>
         <View style={styles.headerIconSlot}>
           <View style={styles.iconButton}>
-            <MenuIcon width={55} height={55} />
+            <TransparentMenu width={55} height={55} />
           </View>
         </View>
       </View>
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 12,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
