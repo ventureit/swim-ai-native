@@ -1,5 +1,5 @@
-import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Image, LayoutChangeEvent, StyleSheet, Text, View } from 'react-native';
 import TransparentBack from '../../assets/icons/TransparentBack.svg';
 import CirclesFour from '../../assets/icons/CirclesFour.svg';
 import DroppedElbowCorrect from '../../assets/icons/DroppedElbowCorrect.png';
@@ -8,12 +8,122 @@ import TransparentMenu from '../../assets/icons/TransparentMenu.svg';
 import RedDrop from '../../assets/icons/RedDrop.svg';
 import StarFour from '../../assets/icons/StarFour.svg';
 import SwimVideoPlaceholder from '../../assets/icons/SwimVideoPlaceholder.png';
+import GhostOverlay from '../components/GhostOverlay';
+
+type Point = { x: number; y: number };
+type Keypoints = {
+  shoulder: Point;
+  elbow: Point;
+  wrist: Point;
+};
+
+type ErrorType = 'none' | 'dropped_elbow' | 'late_catch';
+
+function getElbowAngle(shoulder: Point, elbow: Point, wrist: Point): number {
+  const v1x = shoulder.x - elbow.x;
+  const v1y = shoulder.y - elbow.y;
+
+  const v2x = wrist.x - elbow.x;
+  const v2y = wrist.y - elbow.y;
+
+  const dot = v1x * v2x + v1y * v2y;
+
+  const mag1 = Math.hypot(v1x, v1y);
+  const mag2 = Math.hypot(v2x, v2y);
+
+  if (mag1 === 0 || mag2 === 0) return 0;
+
+  const cos = Math.max(-1, Math.min(1, dot / (mag1 * mag2)));
+
+  return Math.acos(cos) * (180 / Math.PI);
+}
+
+function detectError(keypoints: Keypoints): ErrorType {
+  const { shoulder, elbow, wrist } = keypoints;
+  const angle = getElbowAngle(shoulder, elbow, wrist);
+  const wristBelowShoulder = wrist.y > shoulder.y;
+  const enteringCatchPhase = wristBelowShoulder;
+  const isLateCatch = enteringCatchPhase && angle > 150;
+
+  const idealElbowY = shoulder.y + (wrist.y - shoulder.y) * 0.25;
+  const elbowTooLow = elbow.y > idealElbowY;
+  const forearmNotVertical = Math.abs(wrist.x - elbow.x) > 20;
+  const wristTooHigh = wrist.y < elbow.y;
+
+  const isDroppedElbow = elbowTooLow || forearmNotVertical || wristTooHigh;
+
+  if (isLateCatch) return 'late_catch';
+  if (isDroppedElbow) return 'dropped_elbow';
+
+  return 'none';
+}
+
+function getErrorContent(errorType: ErrorType) {
+  switch (errorType) {
+    case 'late_catch':
+      return {
+        title: 'Late Catch',
+        description: 'You start pulling too late, reducing efficiency.',
+        tip: 'Start bending your elbow earlier and anchor the water sooner.',
+      };
+    case 'dropped_elbow':
+      return {
+        title: 'Dropped Elbow',
+        description: 'Your elbow drops during the pull, reducing propulsion.',
+        tip: 'Keep your elbow high and forearm vertical as early as possible.',
+      };
+    default:
+      return null;
+  }
+}
 
 export default function ReviewScreen() {
+  const mockKeypoints: Keypoints = {
+    shoulder: { x: 220, y: 215 },
+    elbow: { x: 255, y: 250 },
+    wrist: { x: 305, y: 300 },
+  };
+  const errorType = detectError(mockKeypoints);
+  const content = getErrorContent(errorType);
+  const [heroSize, setHeroSize] = useState({ width: 0, height: 0 });
+  const opacity = useRef(new Animated.Value(0)).current;
+  const heroWidth = heroSize.width;
+  const heroHeight = heroSize.height;
+
+  useEffect(() => {
+    Animated.sequence([
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacity, {
+        toValue: 0.4,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  const handleHeroLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    setHeroSize({ width, height });
+  };
+
   return (
     <View style={styles.root}>
-      <View style={styles.heroSection}>
-        <Image source={SwimVideoPlaceholder} style={styles.heroImage} resizeMode="contain" />
+      <View style={styles.heroSection} onLayout={handleHeroLayout}>
+        <Image source={SwimVideoPlaceholder} style={styles.heroImage} resizeMode="cover" />
+        {errorType !== 'none' && heroWidth > 0 && heroHeight > 0 ? (
+          <Animated.View key="ghost" style={[styles.ghostOverlayContainer, { opacity }]}>
+            <GhostOverlay keypoints={mockKeypoints} errorType={errorType} width={heroWidth} height={heroHeight} />
+          </Animated.View>
+        ) : null}
         <View style={styles.heroOverlay}>
           <View style={[styles.heroIconButton, styles.heroBackButton]}>
             <TransparentBack width={45} height={45} />
@@ -27,7 +137,7 @@ export default function ReviewScreen() {
 
       <View style={styles.bottomContainer}>
         <View style={styles.content}>
-          <Text style={styles.title}>Dropped Elbow</Text>
+          <Text style={styles.title}>{content?.title}</Text>
 
           <View style={styles.comparisonRow}>
             <View style={styles.comparisonItem}>
@@ -48,8 +158,8 @@ export default function ReviewScreen() {
           </View>
 
           <View style={styles.descriptionSection}>
-            <Text style={styles.descriptionText}>Your elbow drops during the pull, reducing propulsion.</Text>
-            <Text style={styles.tipText}>Keep your elbow high and forearm vertical as early as possible.</Text>
+            <Text style={styles.descriptionText}>{content?.description}</Text>
+            <Text style={styles.tipText}>{content?.tip}</Text>
           </View>
 
           <View style={styles.button}>
@@ -82,6 +192,9 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   heroOverlay: {
+    ...StyleSheet.absoluteFill,
+  },
+  ghostOverlayContainer: {
     ...StyleSheet.absoluteFill,
   },
   heroIconButton: {
