@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import TransparentBack from '../../assets/icons/TransparentBack.svg';
 import CirclesThree from '../../assets/icons/CirclesThree.svg';
-import CrossOverEntry from '../../assets/icons/CrossOverEntry.png';
-import DroppedElbow from '../../assets/icons/DroppedElbow.png';
+import CrossOverEntry from '../../assets/images/CrossOverEntry.png';
+import DroppedElbow from '../../assets/images/DroppedElbow.png';
 import RedDrop from '../../assets/icons/RedDrop.svg';
-import SwimVideoPlaceholder from '../../assets/icons/SwimVideoPlaceholder.png';
-import LateCatch from '../../assets/icons/LateCatch.png';
+import LateCatchImage from '../../assets/images/LateCatchPlaceholder.png';
+import LateCatch from '../../assets/images/LateCatch.png';
 import TransparentMenu from '../../assets/icons/TransparentMenu.svg';
+import { RootStackParamList } from '../../App';
+import { analysisData } from '../data/analysisData';
 
 export default function SwimsScreen() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const handleCardPress = (index: number) => {
     setSelectedIndex(current => (current === index ? null : index));
@@ -19,7 +24,7 @@ export default function SwimsScreen() {
   return (
     <View style={styles.root}>
       <View style={styles.heroSection}>
-        <Image source={SwimVideoPlaceholder} style={styles.heroImage} resizeMode="contain" />
+        <Image source={LateCatchImage} style={styles.heroImage} resizeMode="contain" />
         <View style={styles.heroOverlay}>
           <View style={[styles.heroIconButton, styles.heroBackButton]}>
             <TransparentBack width={45} height={45} />
@@ -47,10 +52,16 @@ export default function SwimsScreen() {
               </View>
             </Pressable>
             {selectedIndex === 0 ? (
-              <View style={styles.fixButton}>
+              <Pressable
+                style={styles.fixButton}
+                onPress={() =>
+                  navigation.navigate('Review', {
+                    analysis: analysisData.lateCatch,
+                  })
+                }>
                 <CirclesThree width={17} height={17} />
                 <Text style={styles.fixButtonText}>Fix</Text>
-              </View>
+              </Pressable>
             ) : null}
           </View>
 
@@ -68,10 +79,16 @@ export default function SwimsScreen() {
               </View>
             </Pressable>
             {selectedIndex === 1 ? (
-              <View style={styles.fixButton}>
+              <Pressable
+                style={styles.fixButton}
+                onPress={() =>
+                  navigation.navigate('Review', {
+                    analysis: analysisData.droppedElbow,
+                  })
+                }>
                 <CirclesThree width={17} height={17} />
                 <Text style={styles.fixButtonText}>Fix</Text>
-              </View>
+              </Pressable>
             ) : null}
           </View>
 
@@ -89,10 +106,16 @@ export default function SwimsScreen() {
               </View>
             </Pressable>
             {selectedIndex === 2 ? (
-              <View style={styles.fixButton}>
+              <Pressable
+                style={styles.fixButton}
+                onPress={() =>
+                  navigation.navigate('Review', {
+                    analysis: analysisData.lateCatch,
+                  })
+                }>
                 <CirclesThree width={17} height={17} />
                 <Text style={styles.fixButtonText}>Fix</Text>
-              </View>
+              </Pressable>
             ) : null}
           </View>
         </ScrollView>
